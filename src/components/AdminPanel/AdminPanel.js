@@ -17,7 +17,7 @@ function Alert(props) {
 
 function AdminPanel() {
   const classes = useStyles();
-  const [image, setImage] = useState('https://miro.medium.com/max/3840/1*U18aWqq2322t8Z26zZ0SIg.jpeg')
+  const [image, setImage] = useState('')
   const [uploadImg, setUploadImg] = useState(true);
   const [open, setOpen] = useState(false);
 
