@@ -54,17 +54,17 @@ function AdminPanel() {
         Only image (JPG/JPEG, PNG ) are allowed for upload. Choose another file!
         </Alert>
       </Snackbar>
-      {/* {uploadImg ? (
+      {uploadImg ? (
         <DropzoneItem
         getImage={handleDrop}
         accept="image/*"
       />
-      ) : ( */}
+      ) : (
         <Annotation
          img={image} 
          uploadNewImage={uploadNewImage}
         />
-       {/* )} */}
+      )}
        
     </div>
   );
