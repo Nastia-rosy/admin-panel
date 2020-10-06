@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
@@ -31,6 +31,27 @@ function Annotation({ img, uploadNewImage }) {
   const  [currentId, setCurrentId] = useState(null)
   const  [isEdit, setIsEdit] = useState(false)
   const [annotationColor, setAnnotationColor] = useState('')
+  const [changeColor, setChangeColor] = useState('')
+
+  const getColor = () => {
+    switch (annotationColor) {
+    case 'White':
+      return ['rgb(255,255,255)', 'rgb(255,255,255, 0.5)', 'White' ]
+    case 'Red':
+      return ['rgb(223,75,38)', 'rgb(223,75,38,0.5)', 'Red']
+    case 'Yellow' : 
+      return ['rgb(255,255,0)', 'rgb(255,255,0, 0.5)', 'Yellow']
+    case 'Blue':
+      return ['rgb(0,0,255)', 'rgb(0,0,255, 0.5)', 'Blue']
+    default:
+      return;
+    }
+  } 
+
+  useEffect(() => {
+    const color = getColor()
+    setChangeColor(color)
+  }, [annotationColor]);
   
   const handleAnnotationOption = (value) => {
     setBox(value)
@@ -57,7 +78,6 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const createAnnotation = (value) => {
-    console.log(value, 'val');
     setNewAnnotations(value)
   }
 
@@ -84,7 +104,6 @@ function Annotation({ img, uploadNewImage }) {
   const addAnnoatation = () => {
     setFormIsVisible(true)
   }
-console.log(annotationColor);
   return (
     <Grid container spacing={3} className={classes.annotationWrapper}>
       <Grid item md={7} lg={8}>
@@ -95,6 +114,7 @@ console.log(annotationColor);
           setBox={setBox} 
           createAnnotation={createAnnotation} 
           openForm={openForm}
+          color={changeColor}
         />
       </Paper>
         
@@ -109,6 +129,7 @@ console.log(annotationColor);
               uploadNewImage={uploadNewImage}
               currentAnnotation={currentAnnotation}
               handleCloseForm={handleCloseForm}
+              setAnnotationColor={setAnnotationColor}
             />
           </Paper>
         ) :

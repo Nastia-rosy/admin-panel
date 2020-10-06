@@ -60,9 +60,8 @@ function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCl
   const [color, setColor] = useState('')
 
   const handleChooseColor = (e) => {
-    console.log(e.target.value);
     setColor(e.target.value);
-    // setAnnotationColor(e.target.value)
+    setAnnotationColor(e.target.value)
   };
 
   const handleIsChecked = (e) => {
@@ -143,10 +142,10 @@ function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCl
           <MenuItem value="" disabled>
             Color:
           </MenuItem>
-          <MenuItem value={{'White': ['rgb(255,255,255)', 'rgb(255,255,255, 0.5)']}}>White</MenuItem>
-          <MenuItem value={{'Red': ['rgb(223,75,38)', 'rgb(223,75,38,0.5)']}}>Red</MenuItem>
-          <MenuItem value={{'Yellow': ['rgb(255,255,0)', 'rgb(255,255,0, 0.5)']}}>Yellow</MenuItem>
-          <MenuItem value={{'Blue': ['rgb(0,0,255)', 'rgb(0,0,255, 0.5)']}}>Blue</MenuItem>
+          <MenuItem value={'White'}>White</MenuItem>
+          <MenuItem value={'Red'}>Red</MenuItem>
+          <MenuItem value={'Yellow'}>Yellow</MenuItem>
+          <MenuItem value={'Blue'}>Blue</MenuItem>
         </Select>
       </FormControl>
           </Grid>

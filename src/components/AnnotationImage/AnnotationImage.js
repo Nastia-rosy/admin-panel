@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import { Stage, Layer, Line, Rect, Circle } from 'react-konva';
 import { makeStyles } from '@material-ui/core/styles';
@@ -41,30 +41,42 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
+const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color }) => {
   const classes = useStyles();
 
   //box
-  const [lines, setLines] = React.useState([]);
+  const [lines, setLines] = useState([]);
 
-  const [isFinish, setIsFinish] = React.useState(false);
-  const [isStart, setIsStart] = React.useState(false);
-  const [positionOfShape, setPositionOfShape] = React.useState([]);
-  const [coordinatesOfShape, setCoordinatesOfShape] = React.useState([]);
-  const [innerOfDots, setInnerOfDots] = React.useState([]);
+  const [isFinish, setIsFinish] = useState(false);
+  const [isStart, setIsStart] = useState(false);
+  const [positionOfShape, setPositionOfShape] = useState([]);
+  const [coordinatesOfShape, setCoordinatesOfShape] = useState([]);
+  const [innerOfDots, setInnerOfDots] = useState([]);
   const isDrawing = React.useRef(false);
 
   //rect
-  const [geometry, setGeometry] = React.useState({});
-  const [rectangles, setRectangles] = React.useState([]);
+  const [geometry, setGeometry] = useState({});
+  const [rectangles, setRectangles] = useState([]);
   // const [rectHeight, setRectHeight] = React.useState(0);
-  const [rectangles1, setRectangles1] = React.useState([]);
-  const [isDrawingRect, setIsDrawingRect] = React.useState(false);
+  const [rectangles1, setRectangles1] = useState([]);
+  const [isDrawingRect, setIsDrawingRect] = useState(false);
 
   //annotation text
   // const [labelText, setLabelText] = React.useState([]);
   //label 
   // const [labelOn, setLabelOn] = React.useState(true);
+  const [paintColor, setPaintColor] = useState({})
+console.log(paintColor, innerOfDots);
+  
+    const col = color ? color[0] : 'rgba(0, 0,0)'
+    const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
+
+  useEffect(() => {
+    const col = color ? color[0] : 'rgba(0, 0,0)'
+    const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
+    const name = color && color[2]
+    setPaintColor({color: {out: col, inner: opacityCol, name}})
+  }, [color])
 
   const handleMouseDown = (e) => {
     if (box === null) {
@@ -78,14 +90,14 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
       setIsStart(true)
       isDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
-      setLines([...lines, { points: [pos.x, pos.y] }]);
+      setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
       setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
       setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y ])
 
     } else if (isDrawing && !isStart) {
 
       const pos = e.target.getStage().getPointerPosition();
-      setLines([...lines, { points: [pos.x, pos.y] }]);
+      setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
@@ -122,7 +134,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
     }
     setIsFinish(true)
     createAnnotation({
-      coordinates: lines[lines.length - 1].points
+      coordinates: lines[lines.length - 1].points,
+      ...paintColor
     })
     // setShowTextEditor(true)
     
@@ -170,6 +183,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
       ...geometry,
       width: pos.x - geometry.x,
       height: pos.y - geometry.y,
+      ...paintColor
     }])
     setRectangles1([...rectangles1, {
       ...geometry,
@@ -179,6 +193,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
 
     createAnnotation({
       type: 'box',
+      ...paintColor,
       coordinates: {
         ...geometry,
         width: pos.x - geometry.x,
@@ -221,6 +236,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
       height: pos.y - geometry.y,
     }])
   }
+  console.log(rectangles);
 
   return (
     <div className={classes.annotationWrapper}>
@@ -265,8 +281,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
             {innerOfDots.map(item => (
             <Line 
               points={item.points}
-              stroke="#df4b26"
-              fill='rgb(223,75,38,0.5)'
+              stroke={item.color.out}
+              fill={item.color.inner}
               strokeWidth={2}
               dash={[8, 5]}
               closed={true}
@@ -277,7 +293,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
               <Line
                 key={i}
                 points={line.points}
-                stroke="#df4b26"
+                stroke={line.color.out}
                 strokeWidth={2}
                 dash={[8, 5]}
                 lineCap="round"
@@ -289,8 +305,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
                 x={positionOfShape[0].x}
                 y={positionOfShape[0].y}
                 radius={5}
-                stroke="#df4b26"
-                fill="#df4b26"
+                stroke={col}
+                fill={opacityCol}
                 strokeWidth={1}
                 draggable
                 onMouseDown={handleFinishbox}
@@ -307,8 +323,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
                 <Rect
                   x={rectangle.x - 2}
                   y={rectangle.y - 2}
-                  stroke="#df4b26"
-                  fill="#df4b26"
+                  stroke={col}
+                  fill={col}
                   width={4}
                   height={4}
                   draggable
@@ -321,7 +337,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
             <Rect
               x={rectangles1[0] && rectangles1[0].x}
               y={rectangles1[0] && rectangles1[0].y}
-              stroke="#df4b26"
+              stroke={col}
               dash={[8, 5]}
               width={rectangles1[0] && rectangles1[0].width}
               height={rectangles1[0] && rectangles1[0].height}
@@ -333,8 +349,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm }) => {
                 <Rect
                   x={rect.x}
                   y={rect.y}
-                  stroke="#df4b26"
-                  fill='rgb(223,75,38,0.5)'
+                  stroke={rect.color.out}
+                  fill={rect.color.inner}
                   width={rect.width}
                   height={rect.height}
                   draggabl

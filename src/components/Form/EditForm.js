@@ -16,6 +16,8 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import FormHeader from './components/FormHeader';
 import FormButtons from './components/FormButtons';
 import FormChooseDate from './components/FormChooseDate';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -51,12 +53,16 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handleCloseForm }) {
+function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handleCloseForm, setAnnotationColor }) {
   const classes = useStyles();
   const [isChecked, setIsChecked] = useState(null) 
   const [hallName, setHallName] = useState('')
-  // const [newHall, setNewHall] = useState({})
-  
+  const [color, setColor] = useState('')
+
+  const handleChooseColor = (e) => {
+    setColor(e.target.value);
+    setAnnotationColor(e.target.value)
+  };
   
   const handleIsChecked = (e) => {
     console.log(e.target.value);
@@ -64,11 +70,17 @@ function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handle
   }
 
   useEffect(() => {
-    const type = currentAnnotation[0] && currentAnnotation[0].type;
+    if (!currentAnnotation[0]) {
+      return
+    }
+    const type = currentAnnotation[0].type;
     const checked = (type === 'box') ? true : false;
-    const name = currentAnnotation[0] && currentAnnotation[0].formValues.name;
+    const name = currentAnnotation[0].formValues.name;
+    const color = currentAnnotation[0].color.name
     setHallName(name)
     setIsChecked(checked)
+
+    setColor(color)
   }, []);
 
   const handleSaveButton = () => {
@@ -117,22 +129,48 @@ function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handle
             />}
         />
         <FormChooseDate />
-        <FormControl component="fieldset">
-          <FormLabel component="legend" className={classes.formLegend}>
-            Mark hall on the floor plan
-          </FormLabel>
+        <FormLabel component="legend" className={classes.formLegend}>
+          Mark hall on the floor plan
+        </FormLabel>
+        <Grid container justify="space-between">
+          <Grid item md={6}>
+            <FormControl component="fieldset">
           <RadioGroup aria-label="hall">
             <FormControlLabel value="box" label="Box" control={
                 <Radio checked={isChecked} onChange={handleIsChecked} />
               }/>
             <FormControlLabel value="dots" label="Dots" control={
                 <Radio 
-                  checked={!isChecked}
+                  checked={(!isChecked && !(isChecked === null)) ? !isChecked : false}
                   onChange={handleIsChecked}
                 />
               }/>
           </RadioGroup>
         </FormControl>
+          </Grid>
+          
+          <Grid item md={6}>
+            <FormControl variant="outlined" className={classes.formControl} fullWidth size='small'>
+        {/* <InputLabel id="demo-simple-select-outlined-label">Color</InputLabel> */}
+        <Select
+          value={color}
+          displayEmpty
+          // inputProps={{ 'aria-label': 'Without label' }}
+          onChange={handleChooseColor}
+        >
+          <MenuItem value="" disabled>
+            Color:
+          </MenuItem>
+          <MenuItem value={'White'}>White</MenuItem>
+          <MenuItem value={'Red'}>Red</MenuItem>
+          <MenuItem value={'Yellow'}>Yellow</MenuItem>
+          <MenuItem value={'Blue'}>Blue</MenuItem>
+        </Select>
+      </FormControl>
+          </Grid>
+        
+        </Grid>
+        
       </CardContent>
       </div>
       <CardActions className={classes.formSaveButtonWrapper}>
