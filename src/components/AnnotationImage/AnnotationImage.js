@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Button from '@material-ui/core/Button';
-import { Stage, Layer, Line, Rect, Circle } from 'react-konva';
+import { Stage, Layer, Line, Rect, Circle, Image } from 'react-konva';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import LabelText from './components/Label';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-// import AvatarEditor from 'react-avatar-editor'
+import useImage from 'use-image';
+import Slider from '@material-ui/core/Slider';
 
 const useStyles = makeStyles((theme) => ({
   uploadImgButton: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   annotationWrapper: {
     width: '100%',
-    height: 'auto'
+    height: '100%'
   },
   wrapper: {
     position: 'relative',
@@ -44,13 +45,19 @@ const useStyles = makeStyles((theme) => ({
 
 const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, text, annotations }) => {
   const classes = useStyles();
+  const [image] = useImage(img);
+  const ref = useRef()
+  
+  const [size, setSize] = useState({
+    width: ref.current ? ref.current.offsetWidth : 0,
+    height: window.innerHeight - 100
+  });
+  const [scale, setScale] = React.useState(1);
 
   //box
   const [lines, setLines] = useState([]);
-
   const [isFinish, setIsFinish] = useState(false);
   const [isStart, setIsStart] = useState(false);
-  const [coordinates, setCoordinates] = React.useState({});
   const [positionOfShape, setPositionOfShape] = useState([]);
   const [coordinatesOfShape, setCoordinatesOfShape] = useState([]);
   const [innerOfDots, setInnerOfDots] = useState([]);
@@ -59,15 +66,14 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   //rect
   const [geometry, setGeometry] = useState({});
   const [rectangles, setRectangles] = useState([]);
-  // const [rectHeight, setRectHeight] = React.useState(0);
   const [rectangles1, setRectangles1] = useState([]);
   const [isDrawingRect, setIsDrawingRect] = useState(false);
 
   //annotation text
   const [labelText, setLabelText] = useState([]);
 
+  //color
   const [paintColor, setPaintColor] = useState({})
-
   const col = color ? color[0] : 'rgba(0, 0,0)'
   const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
 
@@ -79,12 +85,40 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   }, [color])
 
   useEffect(() => {
+    const checkSize = () => {
+      if (ref.current) {
+        setSize({
+        width: ref.current.offsetWidth,
+        height: window.innerHeight - 200
+      });
+      }
+      
+    };
+
+    window.addEventListener("resize", checkSize);
+    return () => window.removeEventListener("resize", checkSize);
+  }, []);
+  useEffect(() => {  
+    if (ref.current) {
+      setSize({
+        width: ref.current.offsetWidth,
+        height: window.innerHeight - 200
+      })
+    }
+  
+  }, []);
+
+  useEffect(() => {
     if (!text) {
       return
     }
 
     setLabelText([...labelText,text])
   }, [text])
+
+  const handleScale = (event, newValue) => {
+    setScale(newValue)
+  }
 
   const handleMouseDown = (e) => {
     if (box === null) {
@@ -101,7 +135,6 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
       setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
       setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y])
-      setCoordinates({ x: pos.x, y: pos.y })
     } else if (isDrawing && !isStart) {
 
       const pos = e.target.getStage().getPointerPosition();
@@ -150,23 +183,6 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
 
     document.body.style.cursor = 'auto'
   }
-
-  // const [image, setImage] = React.useState(img)
-
-  // const handleDrop = dropped => {
-  //   const reader = new FileReader()
-  //   reader.readAsDataURL(dropped[0])
-  //   reader.onloadend = function () {
-  //     const result = reader.result
-  //     setImage(result)
-  //   }
-
-  //   setPositionOfShape([])
-  //   setLines([])
-  //   setRectangles([])
-  //   setRectangles1([])
-  //   setLabelText([])
-  // }
 
   const handleStartCreateRectangle = (e) => {
     setIsDrawingRect(true)
@@ -249,36 +265,21 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
           delete
           </Button>
       </Grid>
-      <div className={classes.wrapper}>
-        {/* <AvatarEditor
-          width={250}
-          height={250}
-          image={img}
-          border={0}
-          // scale={scale}
-          // rotate={rangeRotate}
-          // borderRadius={borderRadius}
-        /> */}
+      <div className={classes.wrapper} ref={ref}>
         <Stage
           className={classes.wrapperForAnnotation}
-          style={{ backgroundImage: `url(${img})` }}
-          width={window.innerWidth}
-          height={window.innerHeight - 100}
+          width={size.width}
+          height={size.height}
+          scaleX={scale}
+          scaleY={scale}
           onMouseDown={handleMouseDown}
           onMouseUp={handleEndCreateRectangle}
           onMouseMove={handleMove}
         >
           <Layer>
-              {/* {labelText.map(label => (
-                <LabelText
-                  x={label.x}
-                  y={label.y}
-                  text={label.text}
-                />
-              ))}
-             */}
+            <Image image={ image } width={size.width} />
             {innerOfDots.map((item, i) => {
-              console.log(annotations);
+
               const filtered = annotations.filter(el => el.type === 'dots')
               return (
             <>
@@ -295,7 +296,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
                 dash={[8, 5]}
                 closed={true}
                 lineCap="round"
-                onClick={() => openForm(lines, 'dots')}
+                onClick={() => openForm(lines[i], 'dots')}
               />
               </>)})}
             {lines.map((line, i) => (
@@ -371,7 +372,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
                   width={rect.width}
                   height={rect.height}
                   draggabl
-                  onClick={() => openForm(rectangles, 'box')}
+                  onClick={() => openForm(rectangles[i], 'box')}
                   dash={[8, 5]}
                   onFocus={() => { }}
                   onBlur={() => { }}
@@ -381,6 +382,14 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
             ) : null}
           </Layer>
         </Stage>
+        <Slider
+            value={scale}
+            onChange={handleScale}
+            step={0.1}
+            defaultValue={1}
+            max={2}
+            className={classes.slider}
+          />
       </div>
     </div>
   );

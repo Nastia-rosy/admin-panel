@@ -8,9 +8,13 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles((theme) => ({
   formTopButtons: {
     marginBottom: 43,
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 15
+    },
   },
   formButton: {
     textTransform: 'uppercase',
+    marginBottom: 10
   },
 }));
 
@@ -18,7 +22,7 @@ function FormButtons({uploadNewImage}) {
   const classes = useStyles();
 
   return (
-    <Grid container justify="space-between" className={classes.formTopButtons}>
+    <Grid container justify="space-between" spacing={2} className={classes.formTopButtons}>
     <Button
       variant="contained"
       color="default"

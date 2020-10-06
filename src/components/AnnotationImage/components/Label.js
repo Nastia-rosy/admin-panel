@@ -1,21 +1,13 @@
 import React from 'react'
 import {Label, Tag, Text } from 'react-konva';
-// import { makeStyles } from '@material-ui/core/styles';
-
-// const useStyles = makeStyles((theme) => ({
-
-// }));
 
 function LabelText ({ x, y, text }) {
-  // const classes = useStyles();
-
   return (
  <Label
 				offsetY={ 10 }
 				x={ x }
         y={ y }
-				onFocus={ () => {} }
-				onBlur={ () => {} }
+				style={{zIndex: 20}}
 			>
 				<Tag
 					name={ 'name' }

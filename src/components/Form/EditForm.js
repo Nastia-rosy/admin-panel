@@ -8,7 +8,6 @@ import CardContent from '@material-ui/core/CardContent';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Grid from '@material-ui/core/Grid';
-// import ErrorIcon from '@material-ui/icons/Error';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import CardActions from '@material-ui/core/CardActions';
@@ -79,9 +78,8 @@ function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handle
     const color = currentAnnotation[0].color.name
     setHallName(name)
     setIsChecked(checked)
-
     setColor(color)
-  }, []);
+  }, [currentAnnotation]);
 
   const handleSaveButton = () => {
       handleSaveForm({
@@ -116,18 +114,8 @@ function EditForm({ handleSaveForm, uploadNewImage, currentAnnotation={}, handle
           />
         </FormControl>
 
-        <FormControlLabel label="Conference Hall" control={
-            <Checkbox name="checkedA"
-              // checked={state.checkedA} 
-              // onChange={handleChange} 
-            />}
-        />
-        <FormControlLabel label="Check-in Zone" control={
-            <Checkbox name="checkedB"
-              // checked={state.checkedB}
-              // onChange={handleChange}
-            />}
-        />
+        <FormControlLabel label="Conference Hall" control={<Checkbox />} />
+        <FormControlLabel label="Check-in Zone" control={<Checkbox />} />
         <FormChooseDate />
         <FormLabel component="legend" className={classes.formLegend}>
           Mark hall on the floor plan

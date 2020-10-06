@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   formTimeField: {
     width: 78,
     lineHeight: 40,
-    margin: '0 9px'
+    margin: '0 9px 5px'
   },
   formLegend: {
     marginBottom: 10,
@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: '19px',
     transform: 'translate(25%, 25%), rotate(180deg)'
   },
+  labelDate: {
+    margin: 0,
+  }
 }));
 
 function FormChooseDate() {
@@ -57,38 +60,41 @@ function FormChooseDate() {
 
       <FormLabel component="legend" className={classes.formLegend}>
         Working hours
-            </FormLabel>
+      </FormLabel>
 
       <Grid container justify='space-between'>
-        <Grid container item spacing={0} md={7} lg={7} className={classes.formChooseTime}>
-          <FormLabel component="legend" className={classes.formTime}>
+        <Grid container item xs={7} md={7} lg={7} className={classes.formChooseTime}>
+          <Grid xs={4} item md={2}>
+            <FormLabel component="legend" className={classes.formTime}>
             From
         </FormLabel>
-          <TextField
+          </Grid>
+          <Grid item xs={8} md={5}>
+            <TextField
             id="time"
             variant="outlined"
             size='small'
             defaultValue="09:00"
             className={classes.formTimeField}
           />
-          <FormLabel component="legend" className={classes.formTime}>
-            to
-                </FormLabel>
-          <TextField
+          </Grid>
+          <Grid item xs={4} md={1}>
+            <FormLabel component="legend" className={classes.formTime}>
+            To
+            </FormLabel>
+          </Grid>
+          <Grid item xs={8} md={4}>
+            <TextField
             id="time"
             size='small'
             variant="outlined"
             defaultValue="18:00"
             className={classes.formTimeField}
           />
+          </Grid>
         </Grid>
         <Grid item>
-          <FormControlLabel label="Closed today" control={
-            <Checkbox name="checkedB"
-            // checked={state.checkedB}
-            // onChange={handleChange}
-            />}
-          />
+          <FormControlLabel className={classes.labelDate} label="Closed today" control={<Checkbox />} />
         </Grid>
       </Grid>
     </Grid>

@@ -9,8 +9,8 @@ import Halls from '../Halls/Halls';
 
 const useStyles = makeStyles((theme) => ({
   annotationWrapper: {
-    background: '#E5E5E5',
-    padding: '40px 20px',
+    background: 'inherit',
+    padding: '40px 0',
     boxSizing: 'border-box'
   }, 
   annotatinPaper: {
@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
   }, 
   annotatinPaperDif: {
     padding: 24,
+    height: 'auto',
   }
 }));
 
@@ -33,7 +34,6 @@ function Annotation({ img, uploadNewImage }) {
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
   const [annotationName, setAnnotationName] = useState('')
-  const [saveForm, setSaveForm] = useState(false)
 
   const getColor = () => {
     switch (annotationColor) {
@@ -61,7 +61,6 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleSaveForm = (formValues, exist = false) => {
-    setSaveForm(true)
     setFormIsVisible(false)
     
     if (exist === 'exist') {
@@ -84,22 +83,28 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleCloseForm = () => {
-    setSaveForm(false)
     setIsEdit(false)
     setFormIsVisible(false)
   }
 
   const openForm = (value, type) => {
+    if (isEdit) {
+      setIsEdit(false)
+    }
     if (!annotations) {
       return
     }
     let currentAnnotation;
     if (type === 'box') {
-      currentAnnotation = annotations.filter(item => item.coordinates.x === value[value.length - 1].x)
+      currentAnnotation = annotations.filter(item => item.coordinates.x === value.x)
     } else if (type === 'dots') {
       currentAnnotation = annotations.filter(item => {
-        return item.coordinates[0] === value[value.length - 1].points[0]})
+      return item.coordinates[0] === value.points[0]})
     }
+
+   if (Boolean(!currentAnnotation[0])) {
+     return
+   }
     setCurrentId(currentAnnotation[0].id)
     setCurrentAnnotation(currentAnnotation)
     setIsEdit(true)
@@ -113,11 +118,10 @@ function Annotation({ img, uploadNewImage }) {
     setAnnotationName(value)
   }
 
-  console.log(annotations);
   return (
-    <Grid container spacing={3} className={classes.annotationWrapper}>
-      <Grid item md={7} lg={8}>
-      <Paper elevation={3}  className={`${classes.annotatinPaper} ${classes.annotatinPaperDif}`}>
+    <Grid container spacing={3} className={classes.annotationWrapper} justify="center">
+      <Grid item xs={12} sm={12} md={7} lg={8}>
+      <Paper elevation={3}  className={classes.annotatinPaperDif}>
         <AnnotationImage 
           img={img} 
           box={box} 
@@ -131,7 +135,7 @@ function Annotation({ img, uploadNewImage }) {
       </Paper>
         
       </Grid>
-      <Grid item md={5} lg={4}>
+      <Grid item xs={12} sm={10} md={5} lg={4}>
         {isEdit ? (
           <Paper elevation={3} className={classes.annotatinPaper}>
             <EditForm 

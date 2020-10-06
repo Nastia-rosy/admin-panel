@@ -1,10 +1,14 @@
 import React from 'react';
 import AdminPanel from './components/AdminPanel/AdminPanel';
+import Container from '@material-ui/core/Container';
 
 function App() {
   return (
     <div>
-      <AdminPanel />
+      <Container maxWidth="xl">
+         <AdminPanel />
+      </Container>
+     
     </div>
   );
 }

@@ -24,7 +24,7 @@ function AdminPanel() {
   const handleDrop = dropped => {
     const img = dropped[0].type
 
-    if (img == 'image/jpeg' || img == 'image/png' || img == 'image/jpg') {
+    if (img === 'image/jpeg' || img === 'image/png' || img === 'image/jpg') {
       const reader = new FileReader()
       reader.readAsDataURL(dropped[0])
       reader.onloadend = function () {
