@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@material-ui/core/Button';
 import { Stage, Layer, Line, Rect, Circle } from 'react-konva';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-// import LabelText from './components/Label';
+import LabelText from './components/Label';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+// import AvatarEditor from 'react-avatar-editor'
 
 const useStyles = makeStyles((theme) => ({
   uploadImgButton: {
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color }) => {
+const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, text, annotations }) => {
   const classes = useStyles();
 
   //box
@@ -49,6 +50,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color }
 
   const [isFinish, setIsFinish] = useState(false);
   const [isStart, setIsStart] = useState(false);
+  const [coordinates, setCoordinates] = React.useState({});
   const [positionOfShape, setPositionOfShape] = useState([]);
   const [coordinatesOfShape, setCoordinatesOfShape] = useState([]);
   const [innerOfDots, setInnerOfDots] = useState([]);
@@ -62,21 +64,27 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color }
   const [isDrawingRect, setIsDrawingRect] = useState(false);
 
   //annotation text
-  // const [labelText, setLabelText] = React.useState([]);
-  //label 
-  // const [labelOn, setLabelOn] = React.useState(true);
+  const [labelText, setLabelText] = useState([]);
+
   const [paintColor, setPaintColor] = useState({})
-console.log(paintColor, innerOfDots);
-  
-    const col = color ? color[0] : 'rgba(0, 0,0)'
-    const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
+
+  const col = color ? color[0] : 'rgba(0, 0,0)'
+  const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
 
   useEffect(() => {
     const col = color ? color[0] : 'rgba(0, 0,0)'
     const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
     const name = color && color[2]
-    setPaintColor({color: {out: col, inner: opacityCol, name}})
+    setPaintColor({ color: { out: col, inner: opacityCol, name } })
   }, [color])
+
+  useEffect(() => {
+    if (!text) {
+      return
+    }
+
+    setLabelText([...labelText,text])
+  }, [text])
 
   const handleMouseDown = (e) => {
     if (box === null) {
@@ -92,12 +100,13 @@ console.log(paintColor, innerOfDots);
       const pos = e.target.getStage().getPointerPosition();
       setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
       setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
-      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y ])
-
+      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y])
+      setCoordinates({ x: pos.x, y: pos.y })
     } else if (isDrawing && !isStart) {
 
       const pos = e.target.getStage().getPointerPosition();
       setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
+
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
@@ -109,7 +118,7 @@ console.log(paintColor, innerOfDots);
       lines.splice(lines.length - 1, 1, lastLine);
       setLines(lines.concat());
       setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
-      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y ])
+      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y])
     }
 
     if (isFinish) {
@@ -120,12 +129,12 @@ console.log(paintColor, innerOfDots);
       setPositionOfShape([])
     }
 
-     setIsStart(false)
+    setIsStart(false)
 
     if (isDrawing.current) {
       document.body.style.cursor = 'crosshair'
     }
-      
+
   };
 
   const handleFinishbox = () => {
@@ -134,11 +143,10 @@ console.log(paintColor, innerOfDots);
     }
     setIsFinish(true)
     createAnnotation({
+      type: 'dots',
       coordinates: lines[lines.length - 1].points,
       ...paintColor
     })
-    // setShowTextEditor(true)
-    
 
     document.body.style.cursor = 'auto'
   }
@@ -204,22 +212,6 @@ console.log(paintColor, innerOfDots);
     setBox(null)
   }
 
-  // const onSubmit = (value) => {
-  //   if (value) {
-  //     setLabelText(
-  //       [...labelText, {
-  //         x: box ? geometry.x : coordinates.x,
-  //         y: box ? geometry.y : coordinates.y,
-  //         text: value
-  //       }]
-  //     )
-  //   }
-
-  //   setShowTextEditor(false)
-  //   setShowFancyRect(false)
-  //   setGeometry({})
-  // }
-
   const handleMove = (e) => {
     if (!box) {
       return
@@ -236,29 +228,37 @@ console.log(paintColor, innerOfDots);
       height: pos.y - geometry.y,
     }])
   }
-  console.log(rectangles);
 
   return (
     <div className={classes.annotationWrapper}>
       <Grid container justify="flex-end" className={classes.buttonWrapper}>
-          <Button
-            variant="contained"
-            color="default"
-            className={classes.editButton}
-            startIcon={<EditIcon />}
-          >
-            edit image
+        <Button
+          variant="contained"
+          color="default"
+          className={classes.editButton}
+          startIcon={<EditIcon />}
+        >
+          edit image
           </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            className={classes.annotationButton}
-            startIcon={<DeleteIcon />}
-          >
-            delete
+        <Button
+          variant="contained"
+          color="secondary"
+          className={classes.annotationButton}
+          startIcon={<DeleteIcon />}
+        >
+          delete
           </Button>
-        </Grid>
+      </Grid>
       <div className={classes.wrapper}>
+        {/* <AvatarEditor
+          width={250}
+          height={250}
+          image={img}
+          border={0}
+          // scale={scale}
+          // rotate={rangeRotate}
+          // borderRadius={borderRadius}
+        /> */}
         <Stage
           className={classes.wrapperForAnnotation}
           style={{ backgroundImage: `url(${img})` }}
@@ -269,26 +269,35 @@ console.log(paintColor, innerOfDots);
           onMouseMove={handleMove}
         >
           <Layer>
-            {/* {(labelText) ? (
-              labelText.map(label => (
+              {/* {labelText.map(label => (
                 <LabelText
                   x={label.x}
                   y={label.y}
                   text={label.text}
                 />
-              ))
-            ) : <></>} */}
-            {innerOfDots.map(item => (
-            <Line 
-              points={item.points}
-              stroke={item.color.out}
-              fill={item.color.inner}
-              strokeWidth={2}
-              dash={[8, 5]}
-              closed={true}
-              lineCap="round"
-              onClick={() => openForm(lines, 'dots')}
-            />))}
+              ))}
+             */}
+            {innerOfDots.map((item, i) => {
+              console.log(annotations);
+              const filtered = annotations.filter(el => el.type === 'dots')
+              return (
+            <>
+              <LabelText
+                x={item.points[0]}
+                y={item.points[1]}
+                text={filtered[i] ? filtered[i].formValues.name : text}
+                />
+              <Line
+                points={item.points}
+                stroke={item.color.out}
+                fill={item.color.inner}
+                strokeWidth={2}
+                dash={[8, 5]}
+                closed={true}
+                lineCap="round"
+                onClick={() => openForm(lines, 'dots')}
+              />
+              </>)})}
             {lines.map((line, i) => (
               <Line
                 key={i}
@@ -299,7 +308,7 @@ console.log(paintColor, innerOfDots);
                 lineCap="round"
               />
             ))}
-            
+
             {positionOfShape[0] ? (
               <Circle
                 x={positionOfShape[0].x}
@@ -345,7 +354,15 @@ console.log(paintColor, innerOfDots);
               onBlur={() => { }}
             />
             {rectangles ? (
-              rectangles.map(rect => (
+              rectangles.map((rect, i) => {
+                const filtered = annotations.filter(item => item.type === 'box')
+                return (
+              <>
+                <LabelText
+                  x={rect.x}
+                  y={rect.y}
+                  text={filtered[i] ? filtered[i].formValues.name : text}
+                />
                 <Rect
                   x={rect.x}
                   y={rect.y}
@@ -359,7 +376,8 @@ console.log(paintColor, innerOfDots);
                   onFocus={() => { }}
                   onBlur={() => { }}
                 />
-              ))
+                </>
+              )})
             ) : null}
           </Layer>
         </Stage>

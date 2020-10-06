@@ -31,7 +31,7 @@ function LabelText ({ x, y, text }) {
 					name={ 'name' }
 					padding={ 5 }
 					fontFamily='Calibri'
-					text={text ? text : 'Some text'}
+					text={text}
 					fontSize={ 16 }
 					lineHeight={ 1.2 }
 					fill='#fff'

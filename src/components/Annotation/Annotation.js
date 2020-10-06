@@ -32,6 +32,8 @@ function Annotation({ img, uploadNewImage }) {
   const  [isEdit, setIsEdit] = useState(false)
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
+  const [annotationName, setAnnotationName] = useState('')
+  const [saveForm, setSaveForm] = useState(false)
 
   const getColor = () => {
     switch (annotationColor) {
@@ -59,11 +61,11 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleSaveForm = (formValues, exist = false) => {
+    setSaveForm(true)
     setFormIsVisible(false)
     
     if (exist === 'exist') {
       setIsEdit(false)
-      console.log(123);
       const index = formValues.id
       const array = annotations
       array.splice(index, 1, formValues)
@@ -82,18 +84,20 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleCloseForm = () => {
+    setSaveForm(false)
     setIsEdit(false)
     setFormIsVisible(false)
   }
 
   const openForm = (value, type) => {
+    if (!annotations) {
+      return
+    }
     let currentAnnotation;
     if (type === 'box') {
       currentAnnotation = annotations.filter(item => item.coordinates.x === value[value.length - 1].x)
     } else if (type === 'dots') {
-      console.log(value, value[value.length - 1]);
       currentAnnotation = annotations.filter(item => {
-        console.log(item, 'i');
         return item.coordinates[0] === value[value.length - 1].points[0]})
     }
     setCurrentId(currentAnnotation[0].id)
@@ -104,6 +108,12 @@ function Annotation({ img, uploadNewImage }) {
   const addAnnoatation = () => {
     setFormIsVisible(true)
   }
+
+  const getName = (value) => {
+    setAnnotationName(value)
+  }
+
+  console.log(annotations);
   return (
     <Grid container spacing={3} className={classes.annotationWrapper}>
       <Grid item md={7} lg={8}>
@@ -115,6 +125,8 @@ function Annotation({ img, uploadNewImage }) {
           createAnnotation={createAnnotation} 
           openForm={openForm}
           color={changeColor}
+          text={annotationName}
+          annotations={annotations}
         />
       </Paper>
         
@@ -142,6 +154,7 @@ function Annotation({ img, uploadNewImage }) {
               uploadNewImage={uploadNewImage}
               handleCloseForm={handleCloseForm}
               setAnnotationColor={setAnnotationColor}
+              getName={getName}
             />
           </Paper>
         ) : (

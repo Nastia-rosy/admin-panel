@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCloseForm, setAnnotationColor }) {
+function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCloseForm, setAnnotationColor, getName }) {
   const classes = useStyles();
   const [isChecked, setIsChecked] = useState(null) 
   const [hallName, setHallName] = useState('')
@@ -76,10 +76,10 @@ function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCl
   }
 
   const handleHallName = (e) => {
-    
+    getName(e.target.value)
     setHallName(e.target.value)
   }
-  
+
   return (
     <Card className={classes.form}>
       <div>
