@@ -8,7 +8,6 @@ function App() {
       <Container maxWidth="xl">
          <AdminPanel />
       </Container>
-     
     </div>
   );
 }

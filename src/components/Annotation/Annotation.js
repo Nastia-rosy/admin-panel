@@ -4,7 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import AnnotationImage from '../AnnotationImage/AnnotationImage'
 import Form from '../Form/Form'
-import EditForm from '../Form/EditForm'
+import EditForm from '../Form/OpenForm'
 import Halls from '../Halls/Halls';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,8 +29,8 @@ function Annotation({ img, uploadNewImage }) {
   const [annotations, setAnnotations] = useState([])
   const [newAnnotations, setNewAnnotations] = useState({})
   const [currentAnnotation, setCurrentAnnotation] = useState({})
-  const  [currentId, setCurrentId] = useState(null)
-  const  [isEdit, setIsEdit] = useState(false)
+  const [currentId, setCurrentId] = useState(null)
+  const [isEdit, setIsEdit] = useState(false)
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
   const [annotationName, setAnnotationName] = useState('')
@@ -54,7 +54,7 @@ function Annotation({ img, uploadNewImage }) {
     const color = getColor()
     setChangeColor(color)
   }, [annotationColor]);
-  
+
   const handleAnnotationOption = (value) => {
     setBox(value)
     document.body.style.cursor = 'auto'
@@ -62,6 +62,9 @@ function Annotation({ img, uploadNewImage }) {
 
   const handleSaveForm = (formValues, exist = false) => {
     setFormIsVisible(false)
+    // setChangeColor('')
+    setAnnotationColor('')
+    setAnnotationName('')
     
     if (exist === 'exist') {
       setIsEdit(false)

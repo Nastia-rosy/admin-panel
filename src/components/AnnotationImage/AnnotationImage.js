@@ -17,11 +17,12 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   const classes = useStyles();
   const [image] = useImage(img);
   const ref = useRef()
-  
   const [size, setSize] = useState({
     width: ref.current ? ref.current.offsetWidth : 0,
     height: window.innerHeight - 100
   });
+
+
   const [scale, setScale] = React.useState(1);
 
   //box
@@ -29,7 +30,6 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   const [isFinish, setIsFinish] = useState(false);
   const [isStart, setIsStart] = useState(false);
   const [positionOfShape, setPositionOfShape] = useState([]);
-  const [coordinatesOfShape, setCoordinatesOfShape] = useState([]);
   const [innerOfDots, setInnerOfDots] = useState([]);
   const isDrawing = React.useRef(false);
 
@@ -58,24 +58,23 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     const checkSize = () => {
       if (ref.current) {
         setSize({
-        width: ref.current.offsetWidth,
-        height: window.innerHeight - 200
-      });
+          width: ref.current.offsetWidth,
+          height: window.innerHeight - 200
+        });
       }
-      
     };
 
     window.addEventListener("resize", checkSize);
     return () => window.removeEventListener("resize", checkSize);
   }, []);
-  useEffect(() => {  
+
+  useEffect(() => {
     if (ref.current) {
       setSize({
         width: ref.current.offsetWidth,
         height: window.innerHeight - 200
       })
     }
-  
   }, []);
 
   useEffect(() => {
@@ -83,7 +82,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       return
     }
 
-    setLabelText([...labelText,text])
+    setLabelText([...labelText, text])
   }, [text])
 
   const handleScale = (event, newValue) => {
@@ -94,6 +93,10 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     if (box === null) {
       return
     }
+    if (color === undefined) {
+      return
+    }
+
     if (box) {
       handleStartCreateRectangle(e)
       return
@@ -102,26 +105,33 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       setIsStart(true)
       isDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
-      setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
-      setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
-      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y])
+      let x = pos.x;
+      let y = pos.y
+      if (scale !== 1) {
+        x = x / scale
+        y = y / scale
+      }
+      setLines([...lines, { points: [x, y], ...paintColor }]);
+      setPositionOfShape([...positionOfShape, { x, y }])
     } else if (isDrawing && !isStart) {
 
       const pos = e.target.getStage().getPointerPosition();
-      setLines([...lines, { points: [pos.x, pos.y], ...paintColor }]);
-
-      const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      let x = pos.x;
+      let y = pos.y
+      if (scale !== 1) {
+        x = x / scale
+        y = y / scale
+      }
+      setLines([...lines, { points: [x, y], ...paintColor }]);
 
       let lastLine = lines[lines.length - 1];
       // add point
-      lastLine.points = lastLine.points.concat([point.x, point.y]);
+      lastLine.points = lastLine.points.concat([x, y]);
 
       // // replace last
       lines.splice(lines.length - 1, 1, lastLine);
       setLines(lines.concat());
-      setPositionOfShape([...positionOfShape, { x: pos.x, y: pos.y }])
-      setCoordinatesOfShape([...coordinatesOfShape, pos.x, pos.y])
+      setPositionOfShape([...positionOfShape, { x, y }])
     }
 
     if (isFinish) {
@@ -158,6 +168,15 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     setIsDrawingRect(true)
     const pos = e.target.getStage().getPointerPosition();
 
+    if (scale !== 1) {
+      setGeometry({
+        x: (pos.x / scale),
+        y: (pos.y / scale),
+        width: 0,
+        height: 0
+      })
+      return
+    }
     setGeometry({
       x: pos.x,
       y: pos.y,
@@ -171,18 +190,27 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     if (!box) {
       return
     }
+    if (color === undefined) {
+      return
+    }
     const pos = e.target.getStage().getPointerPosition();
+    let x = pos.x;
+    let y = pos.y
+    if (scale !== 1) {
+      x = x / scale
+      y = y / scale
+    }
 
     setRectangles([...rectangles, {
       ...geometry,
-      width: pos.x - geometry.x,
-      height: pos.y - geometry.y,
+      width: x - geometry.x,
+      height: y - geometry.y,
       ...paintColor
     }])
     setRectangles1([...rectangles1, {
       ...geometry,
-      width: pos.x - geometry.x,
-      height: pos.y - geometry.y,
+      width: x - geometry.x,
+      height: y - geometry.y,
     }])
 
     createAnnotation({
@@ -190,8 +218,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       ...paintColor,
       coordinates: {
         ...geometry,
-        width: pos.x - geometry.x,
-        height: pos.y - geometry.y,
+        width: x - geometry.x,
+        height: y - geometry.y,
       }
     })
 
@@ -207,11 +235,17 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       return
     }
     const pos = e.target.getStage().getPointerPosition();
+    let x = pos.x;
+    let y = pos.y
+    if (scale !== 1) {
+      x = x / scale
+      y = y / scale
+    }
 
     setRectangles1([{
       ...geometry,
-      width: pos.x - geometry.x,
-      height: pos.y - geometry.y,
+      width: x - geometry.x,
+      height: y - geometry.y,
     }])
   }
 
@@ -245,30 +279,36 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
           onMouseDown={handleMouseDown}
           onMouseUp={handleEndCreateRectangle}
           onMouseMove={handleMove}
+        
         >
           <Layer>
-            <Image image={ image } width={size.width} />
+            <Image
+              image={image}
+              width={size.width}
+              scaleX={1}
+              scaleY={1}
+            />
             {innerOfDots.map((item, i) => {
-
               const filtered = annotations.filter(el => el.type === 'dots')
               return (
-            <>
-              <LabelText
-                x={item.points[0]}
-                y={item.points[1]}
-                text={filtered[i] ? filtered[i].formValues.name : text}
-                />
-              <Line
-                points={item.points}
-                stroke={item.color.out}
-                fill={item.color.inner}
-                strokeWidth={2}
-                dash={[8, 5]}
-                closed={true}
-                lineCap="round"
-                onClick={() => openForm(lines[i], 'dots')}
-              />
-              </>)})}
+                <>
+                  <LabelText
+                    x={item.points[0]}
+                    y={item.points[1]}
+                    text={filtered[i] ? filtered[i].formValues.name : text}
+                  />
+                  <Line
+                    points={item.points}
+                    stroke={item.color.out}
+                    fill={item.color.inner}
+                    strokeWidth={2}
+                    dash={[8, 5]}
+                    closed={true}
+                    lineCap="round"
+                    onClick={() => openForm(lines[i], 'dots')}
+                  />
+                </>)
+            })}
             {lines.map((line, i) => (
               <Line
                 key={i}
@@ -328,6 +368,43 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
               rectangles.map((rect, i) => {
                 const filtered = annotations.filter(item => item.type === 'box')
                 return (
+                  <>
+                    <LabelText
+                      x={rect.x}
+                      y={rect.y}
+                      text={filtered[i] ? filtered[i].formValues.name : text}
+                    />
+                    <Rect
+                      x={rect.x}
+                      y={rect.y}
+                      stroke={rect.color.out}
+                      fill={rect.color.inner}
+                      width={rect.width}
+                      height={rect.height}
+                      draggabl
+                      onClick={() => openForm(rectangles[i], 'box')}
+                      dash={[8, 5]}
+                      onFocus={() => { }}
+                      onBlur={() => { }}
+                    />
+                  </>
+                )
+              })
+            ) : null}
+            {/* <Rect
+              x={rectangles1[0] && rectangles1[0].x}
+              y={rectangles1[0] && rectangles1[0].y}
+              stroke={col}
+              dash={[8, 5]}
+              width={rectangles1[0] && rectangles1[0].width}
+              height={rectangles1[0] && rectangles1[0].height}
+              onFocus={() => { }}
+              onBlur={() => { }}
+            />
+            {rectangles ? (
+              rectangles.map((rect, i) => {
+                const filtered = annotations.filter(item => item.type === 'box')
+                return (
               <>
                 <LabelText
                   x={rect.x}
@@ -349,17 +426,17 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
                 />
                 </>
               )})
-            ) : null}
+            ) : null} */}
           </Layer>
         </Stage>
         <Slider
-            value={scale}
-            onChange={handleScale}
-            step={0.1}
-            defaultValue={1}
-            max={2}
-            className={classes.slider}
-          />
+          value={scale}
+          onChange={handleScale}
+          step={0.1}
+          defaultValue={1}
+          max={2}
+          className={classes.slider}
+        />
       </div>
     </div>
   );

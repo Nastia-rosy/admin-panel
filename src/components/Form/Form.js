@@ -50,7 +50,6 @@ function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCl
     getName(e.target.value)
     setHallName(e.target.value)
   }
-  console.log(color);
 
   return (
     <Card className={classes.form}>

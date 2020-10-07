@@ -17,7 +17,7 @@ function Alert(props) {
 
 function AdminPanel() {
   const classes = useStyles();
-  const [image, setImage] = useState('')
+  const [image, setImage] = useState('https://www.wallpapermania.eu/images/lthumbs/2013-09/6086_Beautiful-green-path-in-the-forest-HD-nature-wallpaper.jpg')
   const [uploadImg, setUploadImg] = useState(true);
   const [open, setOpen] = useState(false);
 
@@ -54,17 +54,17 @@ function AdminPanel() {
         Only image (JPG/JPEG, PNG ) are allowed for upload. Choose another file!
         </Alert>
       </Snackbar>
-      {uploadImg ? (
+      {/* {uploadImg ? (
         <DropzoneItem
         getImage={handleDrop}
         accept="image/*"
       />
-      ) : (
+      ) : ( */}
         <Annotation
          img={image} 
          uploadNewImage={uploadNewImage}
         />
-      )}
+      {/* )} */}
        
     </div>
   );
