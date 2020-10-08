@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Grid } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
@@ -34,35 +34,42 @@ function Annotation({ img, uploadNewImage }) {
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
   const [annotationName, setAnnotationName] = useState('')
+  const [isDrawn, setIsDrawn] = useState(false)
 
-  const getColor = () => {
-    switch (annotationColor) {
-    case 'White':
-      return ['rgb(255,255,255)', 'rgb(255,255,255, 0.5)', 'White' ]
-    case 'Red':
-      return ['rgb(223,75,38)', 'rgb(223,75,38,0.5)', 'Red']
-    case 'Yellow' : 
-      return ['rgb(255,255,0)', 'rgb(255,255,0, 0.5)', 'Yellow']
-    case 'Blue':
-      return ['rgb(0,0,255)', 'rgb(0,0,255, 0.5)', 'Blue']
-    default:
-      return;
-    }
-  } 
+  const getColor = useCallback(
+    () => {
+      switch (annotationColor) {
+      case 'White':
+        return ['rgb(255,255,255)', 'rgb(255,255,255, 0.5)', 'White' ]
+      case 'Red':
+        return ['rgb(223,75,38)', 'rgb(223,75,38,0.5)', 'Red']
+      case 'Yellow' : 
+        return ['rgb(255,255,0)', 'rgb(255,255,0, 0.5)', 'Yellow']
+      case 'Blue':
+        return ['rgb(0,0,255)', 'rgb(0,0,255, 0.5)', 'Blue']
+      default:
+        return;
+      }
+    },
+    [annotationColor],
+  );
 
   useEffect(() => {
     const color = getColor()
     setChangeColor(color)
-  }, [annotationColor]);
+  }, [annotationColor, getColor]);
 
   const handleAnnotationOption = (value) => {
+    if (isDrawn) {
+      return
+    }
     setBox(value)
     document.body.style.cursor = 'auto'
   }
 
   const handleSaveForm = (formValues, exist = false) => {
     setFormIsVisible(false)
-    // setChangeColor('')
+    setIsDrawn(false)
     setAnnotationColor('')
     setAnnotationName('')
     
@@ -134,6 +141,8 @@ function Annotation({ img, uploadNewImage }) {
           color={changeColor}
           text={annotationName}
           annotations={annotations}
+          setIsDrawn={setIsDrawn}
+          isDrawn={isDrawn}
         />
       </Paper>
         
@@ -142,8 +151,7 @@ function Annotation({ img, uploadNewImage }) {
         {isEdit ? (
           <Paper elevation={3} className={classes.annotatinPaper}>
             <EditForm 
-              handleAnnotationOption={handleAnnotationOption} 
-              box={box} 
+              handleAnnotationOption={handleAnnotationOption}  
               handleSaveForm={handleSaveForm}
               uploadNewImage={uploadNewImage}
               currentAnnotation={currentAnnotation}
@@ -156,12 +164,12 @@ function Annotation({ img, uploadNewImage }) {
           <Paper elevation={3} className={classes.annotatinPaper}>
             <Form 
               handleAnnotationOption={handleAnnotationOption} 
-              box={box} 
               handleSaveForm={handleSaveForm}
               uploadNewImage={uploadNewImage}
               handleCloseForm={handleCloseForm}
               setAnnotationColor={setAnnotationColor}
               getName={getName}
+              isDrawn={isDrawn}
             />
           </Paper>
         ) : (

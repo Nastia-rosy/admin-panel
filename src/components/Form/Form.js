@@ -21,7 +21,15 @@ import styles from '../../styles/formStyle'
 
 const useStyles = makeStyles(styles)
 
-function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCloseForm, setAnnotationColor, getName }) {
+function Form({ 
+  handleAnnotationOption,
+  handleSaveForm, 
+  uploadNewImage, 
+  handleCloseForm, 
+  setAnnotationColor, 
+  getName,
+  isDrawn
+ }) {
   const classes = useStyles();
   const [isChecked, setIsChecked] = useState(null)
   const [hallName, setHallName] = useState('')
@@ -33,6 +41,9 @@ function Form({ handleAnnotationOption, handleSaveForm, uploadNewImage, handleCl
   };
 
   const handleIsChecked = (e) => {
+    if (isDrawn) {
+      return
+    }
     handleAnnotationOption(e.target.value === 'box' ? true : false)
     setIsChecked(e.target.value === 'box' ? true : false)
   }

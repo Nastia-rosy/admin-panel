@@ -15,10 +15,7 @@ const annotationImageStyle = (theme) => ({
     height: '100%',
   },
   wrapperForAnnotation: {
-    height: '100%',
-    backgroundPosition: 'center',
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
+    border: '4px solid gray'
   },
   annotationButton: {
     marginLeft: 8,
