@@ -36,7 +36,6 @@ function FormChooseDate() {
           </Grid>
           <Grid item xs={8} md={5}>
             <TextField
-            id="time"
             variant="outlined"
             size='small'
             defaultValue="09:00"
@@ -50,7 +49,6 @@ function FormChooseDate() {
           </Grid>
           <Grid item xs={8} md={4}>
             <TextField
-            id="time"
             size='small'
             variant="outlined"
             defaultValue="18:00"

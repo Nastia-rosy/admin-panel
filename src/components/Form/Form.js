@@ -73,6 +73,7 @@ function Form({
               Hall name
           </FormLabel>
             <OutlinedInput
+              value={hallName}
               placeholder='Eco Hall'
               className={classes.formInput}
               onChange={handleHallName}

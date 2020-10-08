@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box'
   }, 
   annotatinPaper: {
-    height: '100%',
+    height: 'auto',
   }, 
   annotatinPaperDif: {
     padding: 24,
@@ -33,8 +33,10 @@ function Annotation({ img, uploadNewImage }) {
   const [isEdit, setIsEdit] = useState(false)
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
-  const [annotationName, setAnnotationName] = useState('')
+  // const [annotationName, setAnnotationName] = useState('')
   const [isDrawn, setIsDrawn] = useState(false)
+  const [scale, setScale] = React.useState(1);
+  const [imgInitialPosition, setImgInitialPosition] = React.useState(false);
 
   const getColor = useCallback(
     () => {
@@ -68,11 +70,12 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleSaveForm = (formValues, exist = false) => {
+    setImgInitialPosition(true)
     setFormIsVisible(false)
     setIsDrawn(false)
     setAnnotationColor('')
-    setAnnotationName('')
-    
+    // setAnnotationName('')
+    setScale(1)
     if (exist === 'exist') {
       setIsEdit(false)
       const index = formValues.id
@@ -81,6 +84,7 @@ function Annotation({ img, uploadNewImage }) {
       setAnnotations(array)
       return;
     }
+    if (currentAnnotation)
     setAnnotations([...annotations, {
       ...newAnnotations,
       ...formValues,
@@ -93,17 +97,22 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleCloseForm = () => {
+    setImgInitialPosition(true)
+    setScale(1)
     setIsEdit(false)
     setFormIsVisible(false)
   }
 
   const openForm = (value, type) => {
+    setImgInitialPosition(true)
+    setScale(1)
     if (isEdit) {
       setIsEdit(false)
     }
     if (!annotations) {
       return
     }
+
     let currentAnnotation;
     if (type === 'box') {
       currentAnnotation = annotations.filter(item => item.coordinates.x === value.x)
@@ -121,11 +130,13 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const addAnnoatation = () => {
+    setImgInitialPosition(true)
+    setScale(1)
     setFormIsVisible(true)
   }
 
   const getName = (value) => {
-    setAnnotationName(value)
+    //  setAnnotationName(value)
   }
 
   return (
@@ -139,10 +150,14 @@ function Annotation({ img, uploadNewImage }) {
           createAnnotation={createAnnotation} 
           openForm={openForm}
           color={changeColor}
-          text={annotationName}
+          // text={annotationName}
           annotations={annotations}
           setIsDrawn={setIsDrawn}
           isDrawn={isDrawn}
+          setScale={setScale}
+          scale={scale}
+          setImgInitialPosition={setImgInitialPosition}
+          imgInitialPosition={imgInitialPosition}
         />
       </Paper>
         

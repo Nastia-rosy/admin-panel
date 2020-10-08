@@ -13,12 +13,25 @@ import styles from '../../styles/annotationImageStyle'
 
 const useStyles = makeStyles(styles);
 
-const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, text, annotations, setIsDrawn, isDrawn }) => {
+const AnnotationImage = ({ 
+    img, 
+    box, 
+    setBox, 
+    createAnnotation, 
+    openForm, 
+    color, 
+    text, 
+    annotations, 
+    setIsDrawn, 
+    isDrawn,
+    scale,
+    setScale,
+    setImgInitialPosition,
+    imgInitialPosition
+  }) => {
   const classes = useStyles();
   const [image] = useImage(img.src);
   const ref = useRef()
-
-  const [scale, setScale] = React.useState(1);
 
   //box
   const [lines, setLines] = useState([]);
@@ -42,6 +55,8 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   const col = color ? color[0] : 'rgba(0, 0,0)'
   const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
 
+  const [dragCoordinates, setDragCoordinates] = useState(0);
+
   useEffect(() => {
     const col = color ? color[0] : 'rgba(0, 0,0)'
     const opacityCol = color ? color[1] : 'rgba(0,0,0,0.5)'
@@ -53,9 +68,14 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     if (!text) {
       return
     }
-
     setLabelText([...labelText, text])
   }, [text, labelText])
+
+  // useEffect(() => {
+  //   if (imgInitialPosition) {
+  //     setImgInitialPosition(false)
+  //   }
+  // }, [imgInitialPosition, box])
 
   const handleScale = (event, newValue) => {
     setScale(newValue)
@@ -65,8 +85,9 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
     if (box === null || color === undefined) {
       return
     }
-
+    //setImgInitialPosition(false)
     if (box && !isDrawn) {
+      
       handleStartCreateRectangle(e)
       return
     }
@@ -77,17 +98,27 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       const pos = e.target.getStage().getPointerPosition();
       let x = pos.x;
       let y = pos.y
+      if (Object.entries(dragCoordinates).length !== 0) {
+        x = pos.x - dragCoordinates.x;
+        y = pos.y - dragCoordinates.y
+      }
       if (scale !== 1) {
         x = x / scale
         y = y / scale
       }
+
       setLines([...lines, { points: [x, y], ...paintColor }]);
       setPositionOfShape([...positionOfShape, { x, y }])
+      
     } else if (isDrawing && !isStart && !isDrawn) {
 
       const pos = e.target.getStage().getPointerPosition();
       let x = pos.x;
       let y = pos.y
+      if (Object.entries(dragCoordinates).length !== 0) {
+        x = pos.x - dragCoordinates.x;
+        y = pos.y - dragCoordinates.y
+      }
       if (scale !== 1) {
         x = x / scale
         y = y / scale
@@ -108,7 +139,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       isDrawing.current = false
       setIsFinish(false)
       setBox(null)
-      setInnerOfDots(lines)
+      setInnerOfDots([...innerOfDots, ...lines])
       setPositionOfShape([])
       setLines([])
       setIsDrawn(true)
@@ -139,19 +170,25 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
   const handleStartCreateRectangle = (e) => {
     setIsDrawingRect(true)
     const pos = e.target.getStage().getPointerPosition();
+    let x = pos.x
+    let y = pos.y
+    if (Object.entries(dragCoordinates).length !== 0) {
+      x = pos.x - dragCoordinates.x;
+      y = pos.y - dragCoordinates.y
+    }
 
     if (scale !== 1) {
       setGeometry({
-        x: (pos.x / scale),
-        y: (pos.y / scale),
+        x: (x / scale),
+        y: (y / scale),
         width: 0,
         height: 0
       })
       return
     }
     setGeometry({
-      x: pos.x,
-      y: pos.y,
+      x,
+      y,
       width: 0,
       height: 0
     })
@@ -166,8 +203,12 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       return
     }
     const pos = e.target.getStage().getPointerPosition();
-    let x = pos.x;
+    let x = pos.x
     let y = pos.y
+    if (Object.entries(dragCoordinates).length !== 0) {
+      x = pos.x - dragCoordinates.x;
+      y = pos.y - dragCoordinates.y
+    }
     if (scale !== 1) {
       x = x / scale
       y = y / scale
@@ -204,8 +245,13 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
       return
     }
     const pos = e.target.getStage().getPointerPosition();
-    let x = pos.x;
+    let x = pos.x
     let y = pos.y
+    if (Object.entries(dragCoordinates).length !== 0) {
+      x = pos.x - dragCoordinates.x;
+      y = pos.y - dragCoordinates.y
+    }
+
     if (scale !== 1) {
       x = x / scale
       y = y / scale
@@ -245,19 +291,24 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
           height={img.height}
           scaleX={scale}
           scaleY={scale}
+          x={imgInitialPosition ? 0 : null}
+          y={imgInitialPosition ? 0 : null}
           onMouseDown={handleMouseDown}
           onMouseUp={handleEndCreateRectangle}
           onMouseMove={handleMove}
+          draggable={box === null}
+              onDragMove={() => {
+                document.body.style.cursor = 'grabbing'
+              }}
+          onDragEnd={() => document.body.style.cursor = 'default'}
+          dragBoundFunc={(e) => setDragCoordinates(e)}
         >
           <Layer>
             <Image
               image={image}
               width={img.width}
-              draggable={box === null}
-              onDragMove={() => {
-                document.body.style.cursor = 'grabbing'
-              }}
-              onDragEnd={() => document.body.style.cursor = 'default'}
+              x={imgInitialPosition ? 0 : null}
+              y={imgInitialPosition ? 0 : null}
             />
             {innerOfDots.map((item, i) => {
               // const filtered = annotations.filter(el => el.type === 'dots')
@@ -277,7 +328,7 @@ const AnnotationImage = ({ img, box, setBox, createAnnotation, openForm, color, 
                     closed={true}
                     draggable
                     lineCap="round"
-                    onClick={() => openForm(lines[i], 'dots')}
+                    onClick={() => openForm(innerOfDots[i], 'dots')}
                   />
                 </>)
             })}
