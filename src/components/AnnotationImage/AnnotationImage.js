@@ -71,11 +71,11 @@ const AnnotationImage = ({
     setLabelText([...labelText, text])
   }, [text, labelText])
 
-  // useEffect(() => {
-  //   if (imgInitialPosition) {
-  //     setImgInitialPosition(false)
-  //   }
-  // }, [imgInitialPosition, box])
+  useEffect(() => {
+    if (imgInitialPosition) {
+      setImgInitialPosition(false)
+    }
+  }, [imgInitialPosition, box])
 
   const handleScale = (event, newValue) => {
     setScale(newValue)
