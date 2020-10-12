@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Halls({ annotations, addAnnoatation, currentId }) {
+function Halls({ annotations, addAnnoatation, deleteAnnotation }) {
   const classes = useStyles();
 
   return (
@@ -67,7 +67,12 @@ function Halls({ annotations, addAnnoatation, currentId }) {
                     <IconButton edge="end" aria-label="edit" color='inherit'>
                       <EditIcon />
                     </IconButton>
-                    <IconButton edge="end" aria-label="delete" color='secondary'>
+                    <IconButton 
+                      edge="end" 
+                      aria-label="delete" 
+                      color='secondary'
+                      onClick={() => deleteAnnotation(item.id)}
+                    >
                       <DeleteIcon />
                     </IconButton>
               </ListItemSecondaryAction>

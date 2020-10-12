@@ -28,7 +28,8 @@ function Form({
   handleCloseForm, 
   setAnnotationColor, 
   getName,
-  isDrawn
+  isDrawn,
+  deleteAnnotation
  }) {
   const classes = useStyles();
   const [isChecked, setIsChecked] = useState(null)
@@ -67,7 +68,7 @@ function Form({
       <div>
         <FormHeader handleCloseForm={handleCloseForm} />
         <CardContent>
-          <FormButtons uploadNewImage={uploadNewImage} />
+          <FormButtons uploadNewImage={uploadNewImage} deleteAnnotation={deleteAnnotation} />
           <FormControl component="fieldset" fullWidth>
             <FormLabel component="legend" className={classes.formLegend}>
               Hall name

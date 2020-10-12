@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FormButtons({uploadNewImage}) {
+function FormButtons({uploadNewImage, deleteAnnotation}) {
   const classes = useStyles();
 
   return (
@@ -37,6 +37,7 @@ function FormButtons({uploadNewImage}) {
       color="secondary"
       className={classes.formButton}
       startIcon={<DeleteIcon />}
+      onClick={() => deleteAnnotation()}
     >
       delete hall
     </Button>

@@ -27,6 +27,8 @@ function EditForm({
   currentAnnotation = {},
   handleCloseForm,
   setAnnotationColor,
+  getName,
+  deleteAnnotation
 }) {
   const classes = useStyles();
   const [isChecked, setIsChecked] = useState(null)
@@ -63,6 +65,7 @@ function EditForm({
   }
 
   const handleHallName = (e) => {
+    getName(e.target.value)
     setHallName(e.target.value)
   }
 
@@ -71,7 +74,7 @@ function EditForm({
       <div>
         <FormHeader handleCloseForm={handleCloseForm} />
         <CardContent>
-          <FormButtons uploadNewImage={uploadNewImage} />
+          <FormButtons uploadNewImage={uploadNewImage} deleteAnnotation={deleteAnnotation} />
           <FormControl component="fieldset" fullWidth>
             <FormLabel component="legend" className={classes.formLegend}>
               Hall name

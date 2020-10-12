@@ -29,14 +29,15 @@ function Annotation({ img, uploadNewImage }) {
   const [annotations, setAnnotations] = useState([])
   const [newAnnotations, setNewAnnotations] = useState({})
   const [currentAnnotation, setCurrentAnnotation] = useState({})
-  const [currentId, setCurrentId] = useState(null)
   const [isEdit, setIsEdit] = useState(false)
   const [annotationColor, setAnnotationColor] = useState('')
   const [changeColor, setChangeColor] = useState('')
-  // const [annotationName, setAnnotationName] = useState('')
+  const [annotationName, setAnnotationName] = useState('')
   const [isDrawn, setIsDrawn] = useState(false)
-  const [scale, setScale] = React.useState(1);
-  const [imgInitialPosition, setImgInitialPosition] = React.useState(false);
+  const [scale, setScale] = useState(1);
+  const [imgInitialPosition, setImgInitialPosition] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState({});
+  const [isSave, setIsSave] = useState(false)
 
   const getColor = useCallback(
     () => {
@@ -70,11 +71,12 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleSaveForm = (formValues, exist = false) => {
+    setIsSave(true)
     setImgInitialPosition(true)
     setFormIsVisible(false)
     setIsDrawn(false)
     setAnnotationColor('')
-    // setAnnotationName('')
+    setAnnotationName('')
     setScale(1)
     if (exist === 'exist') {
       setIsEdit(false)
@@ -97,10 +99,16 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const handleCloseForm = () => {
+    setIsSave(false)
     setImgInitialPosition(true)
     setScale(1)
     setIsEdit(false)
     setFormIsVisible(false)
+    setIsDrawn(false)
+    // setCurrentAnnotation([])
+    if (!isEdit) {
+      setItemToDelete(newAnnotations)
+    }
   }
 
   const openForm = (value, type) => {
@@ -124,19 +132,59 @@ function Annotation({ img, uploadNewImage }) {
    if (Boolean(!currentAnnotation[0])) {
      return
    }
-    setCurrentId(currentAnnotation[0].id)
+    
     setCurrentAnnotation(currentAnnotation)
     setIsEdit(true)
   }
 
   const addAnnoatation = () => {
+    setIsSave(false)
     setImgInitialPosition(true)
     setScale(1)
     setFormIsVisible(true)
   }
 
   const getName = (value) => {
-    //  setAnnotationName(value)
+     setAnnotationName(value)
+  }
+
+  const deleteAnnotation = (id) => {
+    // if (!currentAnnotation[0]) {
+    //   setItemToDelete(newAnnotations)
+    // }
+    if (isEdit) {
+    let deletedAnnotation;
+    if (currentAnnotation[0].type === 'box') {
+      deletedAnnotation = annotations.filter(item => { 
+        if (item.id === currentAnnotation[0].id) {
+          setItemToDelete(currentAnnotation[0])
+        }
+      return item.id !== currentAnnotation[0].id
+    })
+    } else if (currentAnnotation[0].type === 'dots') {
+      deletedAnnotation = annotations.filter(item => {
+        if (item.id === currentAnnotation[0].id) {
+          setItemToDelete(currentAnnotation[0])
+        }
+      return item.id !== currentAnnotation[0].id})
+    }
+    setAnnotations(deletedAnnotation)
+    handleCloseForm()
+    return
+    }
+    if (formIsVisible) {
+      handleCloseForm()
+      setBox(null)
+      return
+    }
+    let deletedAnnotation;
+      deletedAnnotation = annotations.filter(item => { 
+        if (item.id === id) {
+          setItemToDelete(item)
+        }
+      return item.id !== id
+    })
+    setAnnotations(deletedAnnotation)
   }
 
   return (
@@ -150,14 +198,20 @@ function Annotation({ img, uploadNewImage }) {
           createAnnotation={createAnnotation} 
           openForm={openForm}
           color={changeColor}
-          // text={annotationName}
+          text={annotationName}
           annotations={annotations}
           setIsDrawn={setIsDrawn}
           isDrawn={isDrawn}
           setScale={setScale}
           scale={scale}
+          isEdit={isEdit}
           setImgInitialPosition={setImgInitialPosition}
           imgInitialPosition={imgInitialPosition}
+          currentAnnotation={currentAnnotation}
+          setCurrentAnnotation={setCurrentAnnotation}
+          itemToDelete={itemToDelete}
+          isEdit={isEdit}
+          isSave={isSave}
         />
       </Paper>
         
@@ -171,7 +225,9 @@ function Annotation({ img, uploadNewImage }) {
               uploadNewImage={uploadNewImage}
               currentAnnotation={currentAnnotation}
               handleCloseForm={handleCloseForm}
+              getName={getName}
               setAnnotationColor={setAnnotationColor}
+              deleteAnnotation={deleteAnnotation}
             />
           </Paper>
         ) :
@@ -185,6 +241,7 @@ function Annotation({ img, uploadNewImage }) {
               setAnnotationColor={setAnnotationColor}
               getName={getName}
               isDrawn={isDrawn}
+              deleteAnnotation={deleteAnnotation}
             />
           </Paper>
         ) : (
@@ -192,7 +249,7 @@ function Annotation({ img, uploadNewImage }) {
             <Halls 
               annotations={annotations} 
               addAnnoatation={addAnnoatation}  
-              currentId={currentId}
+              deleteAnnotation={deleteAnnotation}
             />
           </Paper>
         )}

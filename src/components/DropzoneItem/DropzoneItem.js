@@ -36,11 +36,10 @@ function DropzoneItem({ getImage }) {
   return (
     <Dropzone
       onDrop={(dropped) => getImage(dropped)}
-
     >
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()} className={classes.dropzone}>
-          <input {...getInputProps()} />
+          <input data-cy="dropzone" {...getInputProps()} />
           <Typography className={classes.dropzoneTitle}>
             Drop files here or click to upload.
             </Typography>
