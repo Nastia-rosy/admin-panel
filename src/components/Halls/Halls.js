@@ -25,7 +25,10 @@ const useStyles = makeStyles((theme) => ({
   hallsListItem: {
     background: '#E9F4FF',
     borderRadius: 5,
-    marginTop: 10
+    marginTop: 10,
+    '&:hover': {
+      cursor: 'pointer'
+    }
   }, 
   hallsTitle: {
     fontSize: 18,
@@ -36,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Halls({ annotations, addAnnoatation, deleteAnnotation }) {
+function Halls({ annotations, addAnnoatation, deleteAnnotation, handleClickAnnotation }) {
   const classes = useStyles();
 
   return (
@@ -59,7 +62,11 @@ function Halls({ annotations, addAnnoatation, deleteAnnotation }) {
         <List>
           {annotations.map((item, i) => {
             return (
-            <ListItem className={classes.hallsListItem}>
+            <ListItem 
+              className={classes.hallsListItem} 
+              key={i}
+              onClick={() => handleClickAnnotation()}
+            >
               <ListItemText
                 primary={item.formValues.name}
               />

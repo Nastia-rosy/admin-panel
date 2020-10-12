@@ -183,6 +183,10 @@ function Annotation({ img, uploadNewImage }) {
     setAnnotations(deletedAnnotation)
   }
 
+  const handleClickAnnotation = () => {
+    console.log(123);
+  }
+
   return (
     <Grid container spacing={3} className={classes.annotationWrapper} justify="center">
       <Grid item xs={12} sm={12} md={7} lg={8}>
@@ -245,6 +249,7 @@ function Annotation({ img, uploadNewImage }) {
               annotations={annotations} 
               addAnnoatation={addAnnoatation}  
               deleteAnnotation={deleteAnnotation}
+              handleClickAnnotation={handleClickAnnotation}
             />
           </Paper>
         )}
