@@ -105,7 +105,6 @@ function Annotation({ img, uploadNewImage }) {
     setIsEdit(false)
     setFormIsVisible(false)
     setIsDrawn(false)
-    // setCurrentAnnotation([])
     if (!isEdit) {
       setItemToDelete(newAnnotations)
     }
@@ -126,7 +125,7 @@ function Annotation({ img, uploadNewImage }) {
       currentAnnotation = annotations.filter(item => item.coordinates.x === value.x)
     } else if (type === 'dots') {
       currentAnnotation = annotations.filter(item => {
-      return item.coordinates[0] === value.points[0]})
+      return item.nameOfShape === +value.name})
     }
 
    if (Boolean(!currentAnnotation[0])) {
@@ -149,9 +148,6 @@ function Annotation({ img, uploadNewImage }) {
   }
 
   const deleteAnnotation = (id) => {
-    // if (!currentAnnotation[0]) {
-    //   setItemToDelete(newAnnotations)
-    // }
     if (isEdit) {
     let deletedAnnotation;
     if (currentAnnotation[0].type === 'box') {
@@ -210,7 +206,6 @@ function Annotation({ img, uploadNewImage }) {
           currentAnnotation={currentAnnotation}
           setCurrentAnnotation={setCurrentAnnotation}
           itemToDelete={itemToDelete}
-          isEdit={isEdit}
           isSave={isSave}
         />
       </Paper>

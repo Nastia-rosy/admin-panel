@@ -4,6 +4,7 @@ import Annotation from '../Annotation/Annotation'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
+const _ = require('lodash');  
 
 const useStyles = makeStyles((theme) => ({
   app: {
@@ -27,6 +28,9 @@ function AdminPanel() {
   const [open, setOpen] = useState(false);
 
   const handleDrop = dropped => {
+   if(_.isEmpty(dropped)) {
+      return
+   }
     const img = dropped[0].type
 
     if (img === 'image/jpeg' || img === 'image/png' || img === 'image/jpg') {

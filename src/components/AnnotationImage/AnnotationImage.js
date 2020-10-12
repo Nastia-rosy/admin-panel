@@ -57,7 +57,8 @@ const AnnotationImage = ({
     if (imgInitialPosition) {
       setImgInitialPosition(false)
     }
-  }, [imgInitialPosition, box])
+    setDragCoordinates({})
+  }, [imgInitialPosition])
 
   useEffect(() => {
     if (!isEdit) return
@@ -66,10 +67,11 @@ const AnnotationImage = ({
     if (currentAnnotation[0].type === 'dots') {
       let index
       filtered = innerOfDots.filter((el, i) => {
-        if (el.points[0] === currentAnnotation[0].coordinates[0]) {
+        if (+el.name === currentAnnotation[0].coordinates[0]) {
           index = i;
         }
-        return el.points[0] === currentAnnotation[0].coordinates[0]
+        
+        return +el.name === currentAnnotation[0].coordinates[0]
       })
 
       filtered = filtered[0]
@@ -106,12 +108,11 @@ const AnnotationImage = ({
     let filteredDots
     if (Object.keys(itemToDelete).length !== 0) {
       if (itemToDelete.type === 'dots') {
-        filtered = innerOfDots.filter(el => el.points[0] !== itemToDelete.coordinates[0])
+        filtered = innerOfDots.filter(el => +el.name !== itemToDelete.coordinates[0])
         setInnerOfDots(filtered)
-        filteredDots = positionOfShapes.filter(el => el[0].x !== itemToDelete.coordinates[0])
-        // filteredDots = positionOfShapes.filter(el => +el[0].name !== itemToDelete.nameOfShape)
+        filteredDots = positionOfShapes.filter(el => +el[0].name !== itemToDelete.coordinates[0])
+        
         setPositionOfShapes(filteredDots)
-        return
       }
       if (itemToDelete.type === 'box') {
         filtered = rectangles.filter(el => el.x !== itemToDelete.coordinates.x)
@@ -147,7 +148,7 @@ const AnnotationImage = ({
         y = y / scale
       }
 
-      setLines([...lines, { points: [x, y], ...paintColor }]);
+      setLines([...lines, { points: [x, y], ...paintColor, name: `${x}` }]);
       setPositionOfShape([...positionOfShape, { x, y, ...paintColor, name: `${x}` }])
 
     } else if (isDrawing && !isStart && !isDrawn) {
@@ -198,7 +199,6 @@ const AnnotationImage = ({
     if (isDrawing.current && positionOfShape.length < 2) {
       return;
     }
-    console.log(lines);
     setIsFinish(true)
     createAnnotation({
       type: 'dots',
@@ -294,45 +294,41 @@ const AnnotationImage = ({
     }])
   }
 
-  // const handleVertexDragMove = (e) => {
-  //   document.body.style.cursor = 'move';
-  //   const activeVertex = e.target;
-  //   const group = activeVertex.getParent();
-  //   const line = group.get('Line')[0];
-  //   const linePoints = [];
-  //   let index;
-  //   let currentShape = innerOfDots.find((el, i) => {
-  //     if (el.name === line.attrs.name) {
-  //       index = i
-  //     }
-  //     return el.name === line.attrs.name
-  //   })
-  //   console.log(currentShape);
-  //   positionOfShapes[index].forEach(el => {
-  //     if (el.name !== activeVertex.attrs.name) {
-  //       linePoints.push(el.x); linePoints.push(el.y)
-  //       return
-  //     }
-  //     el.x = activeVertex.x()
-  //     el.y = activeVertex.y()
-  //     linePoints.push(activeVertex.x()); linePoints.push(activeVertex.y())
-  //   })
+  const handleVertexDragMove = (e) => {
+    document.body.style.cursor = 'move';
+    const activeVertex = e.target;
+    const group = activeVertex.getParent();
+    const line = group.get('Line')[0];
+    const linePoints = [];
+    let index;
+    let currentShape = innerOfDots.find((el, i) => {
+      if (el.name === line.attrs.name) {
+        index = i
+      }
+      return el.name === line.attrs.name
+    })
+
+    positionOfShapes[index].forEach(el => {
+      if (el.name !== activeVertex.attrs.name) {
+        linePoints.push(el.x); linePoints.push(el.y)
+        return
+      }
+      el.x = activeVertex.x()
+      el.y = activeVertex.y()
+      linePoints.push(activeVertex.x()); linePoints.push(activeVertex.y())
+    })
     
-  //   line.points(linePoints)
-  //   // linePoints.push(linePoints[0])
-  //   // linePoints.push(linePoints[1])
-  //   // currentShape = {...currentShape, points: linePoints}
-  //   // const array = [...innerOfDots]
-  //   // array.splice(index, 1, currentShape)
-  //   // setInnerOfDots(array)
-  // };
+    line.points(linePoints)
+    linePoints.push(linePoints[0])
+    linePoints.push(linePoints[1])
+    currentShape = {...currentShape, points: linePoints}
+    const array = [...innerOfDots]
+    array.splice(index, 1, currentShape)
+    setInnerOfDots(array)
+  };
 
   const handleVertexMouseOver = () => {
     document.body.style.cursor = 'move';
-  };
-
-  const handleMouseOut = (isAdding) => {
-    document.body.style.cursor = isAdding ? 'crosshair' : 'default';
   };
 
   return (
@@ -380,7 +376,7 @@ const AnnotationImage = ({
               width={img.width}
             />
             {innerOfDots.map((poligon, index) => {
-              const filtered = annotations.filter(el => el.type === 'dots')
+              // const filtered = annotations.filter(el => el.type === 'dots')
 
               return (
                 <>
@@ -405,7 +401,9 @@ const AnnotationImage = ({
                     />
 
                     {positionOfShapes.map((item, i) => {
-                      if (i !== index) return
+                      if (i !== index) {
+                        return <></>
+                      }
                       return (
                         <>
                           {item.map((rectangle, i) => (
@@ -418,9 +416,9 @@ const AnnotationImage = ({
                               width={4}
                               height={4}
                               draggable
-                              // onDragMove={ e => handleVertexDragMove(e, innerOfDots) }
+                              onDragMove={ e => handleVertexDragMove(e, innerOfDots) }
                               onMouseOver={ handleVertexMouseOver }
-                              handleMouseOut={() => handleMouseOut(isDrawing.current)}
+                              onMouseLeave={() => document.body.style.cursor = 'auto'}
                               dragOnTop={false}
                               onFocus={() => { }}
                               onBlur={() => { }}
